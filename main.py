@@ -1,12 +1,14 @@
-import json
-
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from redis_om import get_redis_connection, HashModel
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
+import json
 import consumers
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="react-events/build/static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -37,6 +39,11 @@ class Event(HashModel):
 
     class Meta:
         database = redis
+
+
+@app.get("/")
+async def read_index():
+    return FileResponse("react-events/build/index.html")
 
 
 @app.get('/deliveries/{pk}/status')
