@@ -1,8 +1,7 @@
+from fastapi import HTTPException
 import json
 
-from fastapi import HTTPException
-
-
+# Função que cria o estado inicial da entrega
 def create_delivery(state, event):
     data = json.loads(event.data)
     return {
@@ -13,6 +12,7 @@ def create_delivery(state, event):
     }
 
 
+# Função que inicia a entrega
 def start_delivery(state, event):
     if state['status'] != 'ready':
         raise HTTPException(status_code=400, detail="Delivery already started")
@@ -22,6 +22,7 @@ def start_delivery(state, event):
     }
 
 
+# Função que coleta os produtos
 def pickup_products(state, event):
     data = json.loads(event.data)
     new_budget = state["budget"] - int(data['purchase_price']) * int(data['quantity'])
@@ -37,6 +38,7 @@ def pickup_products(state, event):
     }
 
 
+# Função que entrega os produtos
 def deliver_products(state, event):
     data = json.loads(event.data)
     new_budget = state["budget"] + int(data['sell_price']) * int(data['quantity'])
@@ -53,12 +55,14 @@ def deliver_products(state, event):
     }
 
 
+# Função que aumenta o orçamento
 def increase_budget(state, event):
     data = json.loads(event.data)
     state['budget'] += int(data['budget'])
     return state
 
 
+# Dicionário que mapeia os tipos de eventos para as funções que os consomem
 CONSUMERS = {
     "CREATE_DELIVERY": create_delivery,
     "START_DELIVERY": start_delivery,
